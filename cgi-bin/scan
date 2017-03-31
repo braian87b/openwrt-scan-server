@@ -1,14 +1,25 @@
 #!/bin/sh
 DPI=75
 case "$PATH_INFO" in
+	/100 ) DPI=100 ;;
 	/150 ) DPI=150 ;;
+	/200 ) DPI=200 ;;
 	/300 ) DPI=300 ;;
 	/600 ) DPI=600 ;;
+	/1200 ) DPI=1200 ;;
 esac
 
 echo Content-Type: image/jpeg
 echo
-/usr/bin/scanimage --resolution $DPI | /usr/bin/cjpeg | tee data/scan.jpg
+
+#line to test by hand
+#scanimage --resolution 150 --format jpeg --jpeg-quality 0 --progress --verbose > /www/data/scan.jpg
+
+# Instead of use cjpeg my scanimage has `--format jpeg` option, this allow to see the partial image while being scanned!
+#/usr/bin/scanimage --resolution $DPI | /usr/bin/cjpeg | tee data/scan.jpg
+/usr/bin/scanimage --resolution $DPI --format jpeg --jpeg-quality 0 | tee data/scan.jpg
 
 echo "<style> * {font-size: 16px; margin:0; padding:0 } </style>" > data/info.html
-identify data/scan.jpg | awk '{print "<center><pre>" $3 "   " $7 "</pre></center>" }' >> data/info.html
+file data/scan.jpg | cut -d ',' -f 8 | awk '{print "<center><pre>" $1 "</pre></center>" }' >> data/info.html
+
+exit 0
