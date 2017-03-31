@@ -10,9 +10,12 @@
 	}
 
 	._75dpi  { font-size: 10pt; }
+	._100dpi { font-size: 8pt; }
 	._150dpi { font-size: 15pt; }
+	._200dpi { font-size: 8pt; }
 	._300dpi { font-size: 30pt; }
 	._600dpi { font-size: 10pt; }
+	._1200dpi { font-size: 8pt; }
 </style>
 <title>Scanner</title>
 </head><body>
@@ -26,25 +29,30 @@
 <iframe id="info" src="/data/info.html"></iframe>
 
 <table><tr><td>
-<form method="POST" action="/cgi-bin/scan/75">
-	<input type="submit" value="75dpi" class="_75dpi">
-</form>
-
+	<form method="POST" action="/cgi-bin/scan/75">
+		<input type="submit" value="75dpi" class="_75dpi">
+	</form>
+	<form method="POST" action="/cgi-bin/scan/100">
+		<input type="submit" value="100dpi" class="_100dpi">
+	</form>
 </td><td>
-<form method="POST" action="/cgi-bin/scan/150">
-	<input type="submit" value="150dpi" class="_150dpi">
-</form>
-
+	<form method="POST" action="/cgi-bin/scan/150">
+		<input type="submit" value="150dpi" class="_150dpi">
+	</form>
+	<form method="POST" action="/cgi-bin/scan/200">
+		<input type="submit" value="200dpi" class="_200dpi">
+	</form>
 </td><td>
-<form method="POST" action="/cgi-bin/scan/300">
-	<input type="submit" value="300dpi" class="_300dpi">
-</form>
-
+	<form method="POST" action="/cgi-bin/scan/300">
+		<input type="submit" value="300dpi" class="_300dpi">
+	</form>
 </td><td>
-<form method="POST" action="/cgi-bin/scan/600">
-	<input type="submit" value="600dpi" class="_600dpi">
-</form>
-
+	<form method="POST" action="/cgi-bin/scan/600">
+		<input type="submit" value="600dpi" class="_600dpi">
+	</form>
+	<form method="POST" action="/cgi-bin/scan/1200">
+		<input type="submit" value="1200dpi" class="_1200dpi">
+	</form>
 </td></tr></table>
 </center>
 
@@ -54,12 +62,28 @@
 	$('form').submit(function(){
 		$('#spinner').show();
 		var dpi = parseInt($('input',this).val());
+
+		function reload_image() {
+		    $('#preview').attr('src', '/data/scan.jpg?r=' + Math.random());
+		}
+
+		var image_reloader = setInterval(reload_image, dpi * 2);
 		$.ajax({
 			url: "/cgi-bin/scan/"+dpi,
 			complete: function(){
 				$('#preview').attr('src', '/data/scan.jpg?r=' + Math.random());
 				$('#info').attr('src', '/data/info.html?r=' + Math.random());
 				$('#spinner').hide();
+
+				var ds = (new Date()).toISOString().replace(/[^0-9]/g, "").slice(0, 14);
+				var a = document.createElement('a');
+				a.href = "/data/scan.jpg?r=" + Math.random();
+				a.download = "scan_" + ds + ".jpg";
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				clearInterval(image_reloader);
+
 			}
 		});
 		return false;
